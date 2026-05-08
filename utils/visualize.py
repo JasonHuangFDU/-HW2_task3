@@ -1,8 +1,4 @@
-"""
-可视化工具:
-    * 把整数标签 mask 上色为 RGB 图
-    * 把一个 batch 的 (image, gt, pred) 拼成网格保存
-"""
+
 
 from __future__ import annotations
 
@@ -14,7 +10,6 @@ import torch
 from PIL import Image
 
 
-# 8 类语义颜色 + 1 个 ignore 颜色 (黑)
 _PALETTE: np.ndarray = np.array(
     [
         [70, 130, 180],   # sky        - 钢蓝
@@ -31,7 +26,6 @@ _PALETTE: np.ndarray = np.array(
 
 
 def colorize_mask(mask: np.ndarray, ignore_index: int = 255) -> np.ndarray:
-    """把整数类别图 (H, W) 转成上色 RGB 图 (H, W, 3)。"""
     h, w = mask.shape
     out = np.zeros((h, w, 3), dtype=np.uint8)
     for c, color in enumerate(_PALETTE):
@@ -41,7 +35,6 @@ def colorize_mask(mask: np.ndarray, ignore_index: int = 255) -> np.ndarray:
 
 
 def _denormalize(img_tensor: torch.Tensor) -> np.ndarray:
-    """把训练时 normalize 过的 tensor 还原成 0-255 的 RGB ndarray。"""
     mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
     std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
     img = img_tensor.detach().cpu() * std + mean
@@ -57,7 +50,6 @@ def save_prediction_grid(
     max_samples: int = 8,
     ignore_index: int = 255,
 ) -> None:
-    """把 (image, GT, Pred) 三列拼成网格保存成 PNG。"""
     save_path = Path(save_path)
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -67,7 +59,6 @@ def save_prediction_grid(
         rgb = _denormalize(images[i])
         gt_rgb = colorize_mask(gts[i].cpu().numpy(), ignore_index)
         pr_rgb = colorize_mask(preds[i].cpu().numpy(), ignore_index)
-        # 三张图水平拼接 (高度对齐)
         row = np.concatenate([rgb, gt_rgb, pr_rgb], axis=1)
         rows.append(row)
     grid = np.concatenate(rows, axis=0)

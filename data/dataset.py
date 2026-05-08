@@ -1,17 +1,4 @@
-"""
-Stanford Background Dataset 加载器
 
-数据集说明：
-    715 张室外场景图像, 像素级标注为 8 类 + 1 类 unknown (-1):
-        0: sky        1: tree       2: road      3: grass
-        4: water      5: building   6: mountain  7: foreground object
-    标注文件 *.regions.txt 中, 每行为一行像素的整数标签, 用空格分隔, -1 表示未知。
-
-数据集目录约定（解压后的标准结构）:
-    <root>/
-        images/<id>.jpg
-        labels/<id>.regions.txt
-"""
 
 from __future__ import annotations
 
@@ -40,11 +27,9 @@ NUM_CLASSES: int = len(CLASS_NAMES)
 IGNORE_INDEX: int = 255  # 把原始标签 -1 (unknown) 映射成 255, 训练时 ignore
 
 
-# ---------------------------------------------------------------------------
+
 #  数据增广 / 预处理
-# ---------------------------------------------------------------------------
 class JointTransform:
-    """同时对 image 和 mask 做几何变换, 保持像素对齐。"""
 
     def __init__(
         self,
@@ -97,9 +82,6 @@ class JointTransform:
         return torch.from_numpy(img_arr.astype(np.float32)), torch.from_numpy(mask.astype(np.int64))
 
 
-# ---------------------------------------------------------------------------
-#  Dataset
-# ---------------------------------------------------------------------------
 class StanfordBackgroundDataset(Dataset):
     def __init__(
         self,
@@ -124,9 +106,7 @@ class StanfordBackgroundDataset(Dataset):
 
     @staticmethod
     def _load_label(path: Path) -> np.ndarray:
-        # .regions.txt 是整数空格分隔的二维网格, -1 表示 unknown
         arr = np.loadtxt(str(path), dtype=np.int32)
-        # 把 -1 (unknown) 映射为 IGNORE_INDEX, 其他保持 0..7
         arr = np.where(arr < 0, IGNORE_INDEX, arr).astype(np.uint8)
         return arr
 
@@ -147,9 +127,6 @@ class StanfordBackgroundDataset(Dataset):
         return image, mask, img_id
 
 
-# ---------------------------------------------------------------------------
-#  Split & DataLoader 工厂
-# ---------------------------------------------------------------------------
 def _scan_ids(root: str) -> List[str]:
     image_dir = Path(root) / "images"
     label_dir = Path(root) / "labels"
@@ -173,7 +150,6 @@ def split_ids(
     test_ratio: float = 0.15,
     seed: int = 42,
 ) -> Tuple[List[str], List[str], List[str]]:
-    """固定随机种子, 把 ID 切成 train/val/test 三份。"""
     rng = random.Random(seed)
     ids = list(all_ids)
     rng.shuffle(ids)
@@ -195,7 +171,6 @@ def build_dataloaders(
     test_ratio: float = 0.15,
     seed: int = 42,
 ) -> Tuple[DataLoader, DataLoader, DataLoader, dict]:
-    """构造 train / val / test 三个 DataLoader 以及一份 split 元信息。"""
     all_ids = _scan_ids(root)
     train_ids, val_ids, test_ids = split_ids(all_ids, val_ratio, test_ratio, seed)
 

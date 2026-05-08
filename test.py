@@ -1,8 +1,3 @@
-"""
-评估 / 推理脚本:
-    1. 加载训练好的权重, 在测试集上计算 mIoU / Pixel Accuracy / 每类 IoU
-    2. 可选: 对单张或目录下的图像进行预测并保存可视化
-"""
 
 from __future__ import annotations
 

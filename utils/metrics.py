@@ -1,10 +1,4 @@
-"""
-分割任务评价指标:
-    * Pixel Accuracy
-    * mean IoU (mIoU)
-    * 各类 IoU
-通过累积一个 (num_classes, num_classes) 的混淆矩阵, 在 epoch 末一次性算出指标。
-"""
+
 
 from __future__ import annotations
 
@@ -25,11 +19,6 @@ class SegmentationMetric:
 
     @torch.no_grad()
     def update(self, pred: torch.Tensor, target: torch.Tensor) -> None:
-        """累加一个 batch 的混淆矩阵。
-
-        pred:    (B, H, W)  — argmax 后的预测类别
-        target:  (B, H, W)  — GT, 包含 ignore_index 的位置会被过滤
-        """
         if pred.dim() == 4:
             pred = pred.argmax(dim=1)
         pred = pred.detach().cpu().numpy().astype(np.int64).ravel()
@@ -39,12 +28,10 @@ class SegmentationMetric:
         pred = pred[valid]
         target = target[valid]
 
-        # 用 bincount 一次性累加混淆矩阵, 比 for 循环快非常多
         idx = self.num_classes * target + pred
         bincount = np.bincount(idx, minlength=self.num_classes ** 2)
         self.confusion += bincount.reshape(self.num_classes, self.num_classes)
 
-    # ---- 指标计算 -----------------------------------------------------
     def pixel_accuracy(self) -> float:
         total = self.confusion.sum()
         if total == 0:

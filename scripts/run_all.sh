@@ -1,12 +1,4 @@
-#!/usr/bin/env bash
-# 一键完成损失函数对比实验:
-#   1) 仅 Cross-Entropy
-#   2) 仅 Dice (手动实现)
-#   3) Cross-Entropy + Dice  组合损失
-#
-# 用法:
-#   bash scripts/run_all.sh /absolute/path/to/iccv09Data
-# 默认参数与下面保持一致, 需要改请直接编辑本脚本
+
 
 set -e
 

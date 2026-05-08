@@ -1,14 +1,4 @@
-"""
-U-Net 网络结构（从零手写实现，不使用任何预训练权重）
 
-整体结构：
-    输入 -> 编码器(4 次下采样, 每级 DoubleConv + MaxPool)
-         -> 瓶颈(DoubleConv)
-         -> 解码器(4 次上采样, 每级 UpConv + Skip 拼接 + DoubleConv)
-         -> 1x1 卷积输出 num_classes 通道
-
-参考: Ronneberger et al., "U-Net: Convolutional Networks for Biomedical Image Segmentation", MICCAI 2015.
-"""
 
 from __future__ import annotations
 
@@ -52,7 +42,6 @@ class Down(nn.Module):
 
 
 class Up(nn.Module):
-    """上采样: 转置卷积或双线性插值 + Skip 拼接 + DoubleConv。"""
 
     def __init__(self, in_channels: int, out_channels: int, bilinear: bool = True):
         super().__init__()
@@ -65,8 +54,6 @@ class Up(nn.Module):
 
     def forward(self, x_dec: torch.Tensor, x_enc: torch.Tensor) -> torch.Tensor:
         x_dec = self.up(x_dec)
-        # 由于输入尺寸不一定能被 16 整除, 解码端可能与对应编码端的特征图存在 1 像素差,
-        # 这里对 x_dec 做对称 padding 与 x_enc 对齐, 然后沿通道维拼接 (Skip Connection)
         diff_y = x_enc.size(2) - x_dec.size(2)
         diff_x = x_enc.size(3) - x_dec.size(3)
         x_dec = F.pad(
@@ -78,7 +65,6 @@ class Up(nn.Module):
 
 
 class OutConv(nn.Module):
-    """1x1 卷积, 把通道数映射为类别数。"""
 
     def __init__(self, in_channels: int, num_classes: int):
         super().__init__()
@@ -89,14 +75,6 @@ class OutConv(nn.Module):
 
 
 class UNet(nn.Module):
-    """完整的 U-Net 网络。
-
-    Args:
-        in_channels: 输入图像通道数, 默认 3 (RGB)
-        num_classes: 像素级分类的类别数
-        base_channels: 第一层卷积的输出通道数, 后续按 2 倍放大. 论文取 64
-        bilinear: 上采样是否使用双线性插值; False 时使用转置卷积
-    """
 
     def __init__(
         self,
@@ -137,7 +115,6 @@ class UNet(nn.Module):
         self._init_weights()
 
     def _init_weights(self) -> None:
-        # 全部使用随机初始化, 不加载任何预训练权重 (作业基本要求)
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")

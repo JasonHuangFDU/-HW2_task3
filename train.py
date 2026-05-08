@@ -1,17 +1,4 @@
-"""
-训练脚本: 从零训练 U-Net 在 Stanford Background Dataset 上做语义分割。
 
-支持三种损失配置 (作业要求):
-    --loss ce         仅交叉熵
-    --loss dice       仅 Dice Loss (手动实现)
-    --loss combined   CE + Dice 组合损失
-
-使用 swanlab 进行训练曲线可视化 (loss / mIoU / pixel acc), 离线模式可通过 --no-log 关闭。
-
-典型用法:
-    python train.py --data-root /path/to/iccv09Data --loss combined --epochs 100 \
-                    --batch-size 8 --lr 1e-3 --output-dir runs/combined
-"""
 
 from __future__ import annotations
 
@@ -41,9 +28,6 @@ from models import UNet
 from utils import SegmentationMetric, save_prediction_grid
 
 
-# ---------------------------------------------------------------------------
-#  Args
-# ---------------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser("UNet on Stanford Background Dataset")
 
@@ -101,9 +85,6 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-# ---------------------------------------------------------------------------
-#  Helpers
-# ---------------------------------------------------------------------------
 def set_seed(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
@@ -136,9 +117,6 @@ def build_scheduler(optimizer, args, steps_per_epoch: int):
     return None
 
 
-# ---------------------------------------------------------------------------
-#  Logger 抽象 (兼容 swanlab / wandb / 无)
-# ---------------------------------------------------------------------------
 class Logger:
     def __init__(self, tool: str, project: str, name: Optional[str], config: dict, log_dir: str):
         self.tool = tool
@@ -179,9 +157,6 @@ class Logger:
             self._wb.finish()
 
 
-# ---------------------------------------------------------------------------
-#  单个 epoch
-# ---------------------------------------------------------------------------
 def train_one_epoch(
     model, loader, optimizer, scheduler, criterion, device, scaler, logger, epoch, args, global_step,
 ):
@@ -266,9 +241,7 @@ def evaluate(model, loader, criterion, device, save_vis_path: Optional[Path] = N
     return summary
 
 
-# ---------------------------------------------------------------------------
-#  Main
-# ---------------------------------------------------------------------------
+
 def main() -> None:
     args = parse_args()
     set_seed(args.seed)
@@ -401,7 +374,6 @@ def main() -> None:
             torch.save(ck, output_dir / "best.pt")
             print(f"  -> saved best.pt  (mIoU={best_miou:.4f})")
 
-    # 训练结束后, 用 best.pt 在测试集上做最终评估
     print("\n========== Final evaluation on test set (best.pt) ==========")
     if (output_dir / "best.pt").is_file():
         ck = torch.load(output_dir / "best.pt", map_location=device)

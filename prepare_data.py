@@ -1,20 +1,4 @@
-"""
-Stanford Background Dataset 下载 / 解压辅助脚本。
 
-官方下载地址 (来源: http://dags.stanford.edu/projects/scenedataset.html):
-    http://dags.stanford.edu/data/iccv09Data.tar.gz
-
-解压后目录结构:
-    iccv09Data/
-        images/         715 张 .jpg
-        labels/         每张图对应 *.regions.txt / *.surfaces.txt / *.layers.txt
-        horizons.txt
-        readme.txt
-
-用法:
-    python prepare_data.py --output ./datasets
-    # 完成后路径: ./datasets/iccv09Data/{images,labels}
-"""
 
 from __future__ import annotations
 
