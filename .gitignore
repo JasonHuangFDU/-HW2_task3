@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Training artifacts
+runs/
+logs/
+swanlog/
+wandb/
+*.pt
+*.pth
+*.ckpt
+
+# Datasets
+datasets/
+iccv09Data/
+*.tar.gz
+
+# OS
+.DS_Store
+Thumbs.db
