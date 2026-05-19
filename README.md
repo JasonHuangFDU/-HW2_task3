@@ -1,7 +1,4 @@
 # 任务 3 — 从零搭建 U-Net + 损失函数工程
-
-
-
 ## 1. 代码结构
 
 ```
@@ -51,7 +48,7 @@ task3/
 conda create -n hw2_task3 python=3.10 -y
 conda activate hw2_task3
 
-# 2) 安装 PyTorch (按你的 CUDA 版本选择, 以下示例为 CUDA 11.8)
+# 2) 安装 PyTorch 
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
 # 3) 安装其它依赖
@@ -215,7 +212,6 @@ python test.py \
 
 输出位于 `--output-dir/predict/<原文件名>_pred.png`，左半为输入图，右半为上色后的语义分割结果。
 
-> `--data-root` 在纯预测模式下不会读取任何样本，但仍是必填项（保留为统一接口）。
 
 ---
 
@@ -231,7 +227,7 @@ python test.py \
 | Optimizer | AdamW（lr=1e-3, weight_decay=1e-4） |
 | LR Scheduler | CosineAnnealingLR（按 step 退火） |
 | Epochs | 100 |
-| 混合精度 | `--amp`（推荐开启） |
+| 混合精度 | `--amp` |
 | ignore_index | 255（来自原始 -1 的 unknown 像素） |
 | Loss | (a) CE  (b) Dice (手动实现, macro 平均)  (c) CE + Dice |
 | 评价指标 | mIoU（主指标）、Pixel Accuracy、per-class IoU |
@@ -239,32 +235,3 @@ python test.py \
 
 ---
 
-## 7. swanlab 可视化
-
-训练时会自动把以下曲线推送到 swanlab：
-
-- `train/iter_loss`, `train/lr`（每 `--log-every` 步）
-- `train/loss`, `train/mIoU`, `train/pixel_acc`（每 epoch）
-- `val/loss`, `val/mIoU`, `val/pixel_acc`, `val/IoU/<class>`（每 epoch）
-- `test/*`（训练结束时）
-
-首次使用需要登录：
-
-```bash
-swanlab login
-```
-
----
-
-## 8. 模型权重下载
-
-> 训练完成后请把 `runs/<exp>/best.pt` 上传到百度云 / Google Drive / OneDrive 等网盘，
-> 并把分享链接填到下面的表格。
-
-| 损失配置 | 验证集 mIoU | 测试集 mIoU | 权重下载 |
-|---|---|---|---|
-| Cross-Entropy | _待填_ | _待填_ | _待填_ |
-| Dice (manual) | _待填_ | _待填_ | _待填_ |
-| Cross-Entropy + Dice | _待填_ | _待填_ | _待填_ |
-
----
